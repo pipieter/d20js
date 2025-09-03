@@ -11,3 +11,10 @@ export class ParserError extends Error {
     this.name = "ParserError";
   }
 }
+
+export class TooManyRollsError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "TooManyRollsError";
+  }
+}
