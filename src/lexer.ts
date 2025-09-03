@@ -1,16 +1,16 @@
 import { LexerError } from "./errors";
 
-enum TokenType {
-  Plus = "PLUS",
-  Minus = "MINUS",
-  Star = "STAR",
-  Slash = "SLASH",
-  ParenthesisLeft = "PARENTHESIS LEFT",
-  ParenthesisRight = "PARENTHESIS RIGHT",
-  Value = "VALUE",
+export enum TokenType {
+  Plus = "+",
+  Minus = "-",
+  Star = "*",
+  Slash = "/",
+  ParenthesisLeft = "(",
+  ParenthesisRight = ")",
+  Value = "[value]",
 }
 
-class Token {
+export class Token {
   public readonly value: string;
   public readonly type: TokenType;
 
@@ -18,13 +18,32 @@ class Token {
     this.value = value;
     this.type = type;
   }
+
+  public static isOperator(type: TokenType): boolean {
+    return [
+      TokenType.Plus,
+      TokenType.Minus,
+      TokenType.Star,
+      TokenType.Slash,
+    ].includes(type);
+  }
+
+  public static isMultiplicativeOp(type: TokenType): boolean {
+    return [TokenType.Star, TokenType.Slash].includes(type);
+  }
+
+  public static isAdditiveOp(type: TokenType): boolean {
+    return [TokenType.Plus, TokenType.Minus].includes(type);
+  }
 }
 
 function isDigit(c: string): boolean {
+  if (!c) return false;
   return "0" <= c && c <= "9";
 }
 
 function isAlpha(c: string): boolean {
+  if (!c) return false;
   const lower = "a" <= c && c <= "z";
   const upper = "A" <= c && c <= "Z";
   return lower || upper;
@@ -61,9 +80,9 @@ export class Lexer {
     return tokens;
   }
 
-  private peek(): string {
+  private peek(): string | null {
     if (this.start >= this.expression.length) {
-      return "";
+      return null;
     }
     return this.expression[this.start];
   }
