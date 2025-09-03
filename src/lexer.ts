@@ -1,14 +1,14 @@
-import { LexerError } from "./errors";
+import { LexerError } from './errors';
 
 export enum TokenType {
-  Plus = "+",
-  Minus = "-",
-  Star = "*",
-  Slash = "/",
-  Percent = "%",
-  ParenthesisLeft = "(",
-  ParenthesisRight = ")",
-  Value = "[value]",
+  Plus = '+',
+  Minus = '-',
+  Star = '*',
+  Slash = '/',
+  Percent = '%',
+  ParenthesisLeft = '(',
+  ParenthesisRight = ')',
+  Value = '[value]',
 }
 
 export class Token {
@@ -21,13 +21,7 @@ export class Token {
   }
 
   public static isOperator(type: TokenType): boolean {
-    return [
-      TokenType.Plus,
-      TokenType.Minus,
-      TokenType.Star,
-      TokenType.Slash,
-      TokenType.Percent,
-    ].includes(type);
+    return [TokenType.Plus, TokenType.Minus, TokenType.Star, TokenType.Slash, TokenType.Percent].includes(type);
   }
 
   public static isMultiplicativeOp(type: TokenType): boolean {
@@ -41,18 +35,18 @@ export class Token {
 
 function isDigit(c: string): boolean {
   if (!c) return false;
-  return "0" <= c && c <= "9";
+  return '0' <= c && c <= '9';
 }
 
 function isAlpha(c: string): boolean {
   if (!c) return false;
-  const lower = "a" <= c && c <= "z";
-  const upper = "A" <= c && c <= "Z";
+  const lower = 'a' <= c && c <= 'z';
+  const upper = 'A' <= c && c <= 'Z';
   return lower || upper;
 }
 
 function isPeriod(c: string): boolean {
-  return c == ".";
+  return c == '.';
 }
 
 function isIdentifierCharacter(c: string) {
@@ -99,27 +93,27 @@ export class Lexer {
 
     switch (c) {
       // Whitespace
-      case "":
-      case " ":
-      case "\t":
-      case "\n":
-      case "\r":
+      case '':
+      case ' ':
+      case '\t':
+      case '\n':
+      case '\r':
         return null;
 
       // Operators
-      case "+":
+      case '+':
         return { value: c, type: TokenType.Plus };
-      case "-":
+      case '-':
         return { value: c, type: TokenType.Minus };
-      case "*":
+      case '*':
         return { value: c, type: TokenType.Star };
-      case "/":
+      case '/':
         return { value: c, type: TokenType.Slash };
-      case "%":
+      case '%':
         return { value: c, type: TokenType.Percent };
-      case "(":
+      case '(':
         return { value: c, type: TokenType.ParenthesisLeft };
-      case ")":
+      case ')':
         return { value: c, type: TokenType.ParenthesisRight };
 
       // Value

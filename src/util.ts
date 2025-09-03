@@ -1,8 +1,4 @@
-export function splitMultiple(
-  str: string,
-  separators: string[],
-  removeEmpty: boolean = true
-): string[] {
+export function splitMultiple(str: string, separators: string[], removeEmpty: boolean = true): string[] {
   let strings = [str];
 
   for (const separator of separators) {
@@ -18,11 +14,11 @@ export function splitMultiple(
 
 export function joinAnd(strings: string[]) {
   if (strings.length <= 2) {
-    return strings.join(" and ");
+    return strings.join(' and ');
   }
 
-  const head = strings.slice(0, -1).join(", ");
+  const head = strings.slice(0, -1).join(', ');
   const tail = strings[strings.length - 1];
 
-  return [head, tail].join(" and ");
+  return [head, tail].join(' and ');
 }
