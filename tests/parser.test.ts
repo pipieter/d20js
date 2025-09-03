@@ -1,12 +1,7 @@
-import { ASTBinOp } from "../dist/ast";
-
 import { expect, test } from "@jest/globals";
-
+import { ASTBinOp } from "../dist/parser";
 import * as d20 from "../dist";
-
-function isType(value: any, type: any): boolean {
-  return value instanceof type;
-}
+import { isType } from "./util";
 
 test("verify parser order of operations", () => {
   const ast = d20.parse("1d20 + 3 * 5");
