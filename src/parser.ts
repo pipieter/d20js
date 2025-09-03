@@ -1,6 +1,56 @@
-import { ParserError } from "./errors";
-import { Token, TokenType } from "./lexer";
-import { Modifier } from "./modifiers";
+import { ParserError } from './errors';
+import { Token, TokenType } from './lexer';
+import { joinAnd, splitMultiple } from './util';
+
+// ===================================
+// Modifiers
+// ===================================
+
+export interface Selector {
+  cat: string;
+  num: number;
+}
+
+export interface Modifier {
+  cat: string;
+  sel: Selector;
+}
+
+function parseModifiers(expression: string): Modifier[] {
+  // Allowed modifier categories: mi, ma, k, p, ro, rr, ra, e
+  // Allowed modifier selectors: <, >, h, l, [empty]
+  // All modifiers end in numbers
+  const regex = /(:?mi|ma|k|p|ro|rr|ra|e)([<>hl]?)([0-9]+)/g;
+  const matches = expression.matchAll(regex);
+
+  const modifiers: Modifier[] = [];
+  const modifierStrings: string[] = [];
+
+  for (const match of matches) {
+    const cat = match[1];
+    const selCat = match[2];
+    const selNum = parseInt(match[3]);
+    const sel = { cat: selCat, num: selNum };
+    modifiers.push({ cat, sel });
+    modifierStrings.push(match[0]);
+  }
+
+  // It's possible for the expression to have modifiers that don't match
+  // These are extracted and thrown as an error
+  const remaining = splitMultiple(expression, modifierStrings);
+  if (remaining.length === 1) {
+    throw new ParserError(`Found unknown modifier '${remaining[0]}'.`);
+  } else if (remaining.length > 1) {
+    const joined = joinAnd(remaining.map((r) => `'${r}'`));
+    throw new ParserError(`Found unknown modifiers ${joined}.`);
+  }
+
+  return modifiers;
+}
+
+// ===================================
+// AST classes
+// ===================================
 
 export abstract class ASTNode {
   public abstract toString(): string;
@@ -32,7 +82,7 @@ export class ASTDice extends ASTNode {
   }
 
   public toString(): string {
-    const modifiers = this.modifiers.map((e) => e.toString()).join("");
+    const modifiers = this.modifiers.map((e) => e.toString()).join('');
     return `${this.count}d${this.sides}${modifiers}`;
   }
 
@@ -86,6 +136,10 @@ export class ASTParenthetical extends ASTNode {
   }
 }
 
+// ===================================
+// Parser
+// ===================================
+
 export class Parser {
   private readonly tokens: Token[];
   private start: number = 0;
@@ -101,7 +155,7 @@ export class Parser {
 
     if (this.start < this.tokens.length) {
       throw new ParserError(
-        "After parsing the expressions, there were still some tokens left. Did you forget an operator?"
+        'After parsing the expressions, there were still some tokens left. Did you forget an operator?'
       );
     }
 
@@ -110,9 +164,7 @@ export class Parser {
 
   private eat(expected: TokenType | null): Token {
     if (this.peek() === null) {
-      throw new ParserError(
-        `Expected a value, but received nothing. Is the expression incomplete?`
-      );
+      throw new ParserError(`Expected a value, but received nothing. Is the expression incomplete?`);
     }
 
     // Special case: warn the user about an expected ')'
@@ -122,26 +174,16 @@ export class Parser {
       TokenType.ParenthesisRight !== this.peek().type
     ) {
       throw new ParserError(
-        `Expected a ')', but received '${
-          this.peek().value
-        }. Are all parentheses correctly closed?`
+        `Expected a ')', but received '${this.peek().value}. Are all parentheses correctly closed?`
       );
     }
 
-    if (
-      expected !== null &&
-      expected != this.peek().type &&
-      Token.isOperator(expected)
-    ) {
-      throw new ParserError(
-        "Expected an operator, but received something else."
-      );
+    if (expected !== null && expected != this.peek().type && Token.isOperator(expected)) {
+      throw new ParserError('Expected an operator, but received something else.');
     }
 
     if (expected !== null && this.peek().type !== expected) {
-      throw new ParserError(
-        `Expected a '${expected}', but received '${this.peek().value}'.`
-      );
+      throw new ParserError(`Expected a '${expected}', but received '${this.peek().value}'.`);
     }
 
     const token = this.peek();
@@ -151,9 +193,7 @@ export class Parser {
 
   private peek(): Token {
     if (this.start >= this.tokens.length) {
-      throw new ParserError(
-        "Expected a follow-up to an operator, but received nothing. Did you forget something?"
-      );
+      throw new ParserError('Expected a follow-up to an operator, but received nothing. Did you forget something?');
     }
     return this.tokens[this.start];
   }
@@ -239,15 +279,13 @@ export class Parser {
     if (diceRegex.test(token.value)) {
       const token = this.eat(TokenType.Value);
       const matches = token.value.match(diceRegex);
-      const count = parseInt(matches[1] || "1");
+      const count = parseInt(matches[1] || '1');
       const sides = parseInt(matches[2]);
-      const modifiers = Modifier.parse(matches[3]);
+      const modifiers = parseModifiers(matches[3]);
       return new ASTDice(count, sides, modifiers);
     }
 
     // Unknown parser
-    throw new ParserError(
-      `Could not parse the dice expression '${token.value}'`
-    );
+    throw new ParserError(`Could not parse the dice expression '${token.value}'`);
   }
 }
