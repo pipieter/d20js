@@ -1,8 +1,6 @@
 import { expect, test } from "@jest/globals";
 
 import * as d20 from "../dist";
-import { isType } from "./util";
-import { RollBinOp, RollDice } from "../dist/roll";
 
 test("verify roll bounds (Monte Carlo)", () => {
   const iterations = 1_000;
@@ -20,4 +18,11 @@ test("test basic math", () => {
   const roll = d20.roll(expression);
 
   expect(roll.total()).toBe(10);
+});
+
+test("test modulo operator", () => {
+  const expression = "14 % 3";
+  const roll = d20.roll(expression);
+
+  expect(roll.total()).toBe(2);
 });
