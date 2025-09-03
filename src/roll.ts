@@ -106,6 +106,8 @@ export class RollBinOp extends RollNode {
         return this.left.total() * this.right.total();
       case "/":
         return Math.floor(this.left.total() / this.right.total());
+      case "%":
+        return this.left.total() % this.right.total();
     }
     throw new ParserError(`Unsupported roll binary operator '${this.op}'.`);
   }

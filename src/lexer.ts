@@ -5,6 +5,7 @@ export enum TokenType {
   Minus = "-",
   Star = "*",
   Slash = "/",
+  Percent = "%",
   ParenthesisLeft = "(",
   ParenthesisRight = ")",
   Value = "[value]",
@@ -25,11 +26,12 @@ export class Token {
       TokenType.Minus,
       TokenType.Star,
       TokenType.Slash,
+      TokenType.Percent,
     ].includes(type);
   }
 
   public static isMultiplicativeOp(type: TokenType): boolean {
-    return [TokenType.Star, TokenType.Slash].includes(type);
+    return [TokenType.Star, TokenType.Slash, TokenType.Percent].includes(type);
   }
 
   public static isAdditiveOp(type: TokenType): boolean {
@@ -113,6 +115,8 @@ export class Lexer {
         return { value: c, type: TokenType.Star };
       case "/":
         return { value: c, type: TokenType.Slash };
+      case "%":
+        return { value: c, type: TokenType.Percent };
       case "(":
         return { value: c, type: TokenType.ParenthesisLeft };
       case ")":
