@@ -52,10 +52,6 @@ class RolledDie extends RolledNode {
     this.value = this.context.roll(this.sides);
   }
 
-  public keep() {
-    this.kept = true;
-  }
-
   public drop() {
     this.kept = false;
   }
@@ -153,7 +149,8 @@ export class RolledDice extends RolledNode {
       ['ma', this.applyMax],
       ['rr', this.applyReroll],
       ['ro', this.applyRerollOnce],
-      ['ra', this.applyRerollAndAdd],
+      ['ra', this.applyExplodeOnce],
+      ['e', this.applyExplode],
     ]);
 
     if (!functions.has(modifier.cat)) {
@@ -206,7 +203,7 @@ export class RolledDice extends RolledNode {
     }
   }
 
-  private applyRerollAndAdd(selector: Selector): void {
+  private applyExplodeOnce(selector: Selector): void {
     const dice = this.getMatchedDice(selector, 1);
     if (dice.length > 0) {
       this.addNewDie();
