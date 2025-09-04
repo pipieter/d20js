@@ -23,3 +23,16 @@ test('test keep', () => {
   const roll = d20.roll(expression);
   expect((roll as RolledDice).keptDice().length).toBe(3);
 });
+
+test('test drop', () => {
+  // This behavior should be consistent with Avrae
+  const expression = '4d6ph3';
+  const roll = d20.roll(expression);
+  expect((roll as RolledDice).keptDice().length).toBe(1);
+});
+
+test('test keep and drop', () => {
+  const expression = '6d6kh5pl3';
+  const roll = d20.roll(expression);
+  expect((roll as RolledDice).keptDice().length).toBe(2);
+});
