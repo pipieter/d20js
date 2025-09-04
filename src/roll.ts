@@ -154,6 +154,7 @@ export class RolledDice extends RolledNode {
       case 'ro': return this.applyRerollOnce(modifier.sel);
       case 'ra': return this.applyExplodeOnce(modifier.sel);
       case 'e':  return this.applyExplode(modifier.sel);
+      case 'k':  return this.applyKeep(modifier.sel); 
     }
 
     throw new ModifierError(`The operator '${modifier.cat}' is not supported.`);
@@ -223,6 +224,18 @@ export class RolledDice extends RolledNode {
       for (const exploded of alreadyExploded) {
         toExplode.delete(exploded);
       }
+    }
+  }
+
+  private applyKeep(selector: Selector): void {
+    const keep = new Set(this.getMatchedDice(selector));
+    const drop = new Set(this.keptDice());
+    for (const die of keep) {
+      drop.delete(die);
+    }
+
+    for (const die of drop) {
+      die.drop();
     }
   }
 }

@@ -16,3 +16,10 @@ test('test explode highest', () => {
   const roll = d20.roll(expression);
   expect((roll as RolledDice).keptDice().length).toBe(6);
 });
+
+test('test keep', () => {
+  // This behavior should be consistent with Avrae
+  const expression = '4d6kh3';
+  const roll = d20.roll(expression);
+  expect((roll as RolledDice).keptDice().length).toBe(3);
+});
