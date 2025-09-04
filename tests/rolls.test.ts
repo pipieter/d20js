@@ -26,3 +26,10 @@ test('test modulo operator', () => {
 
   expect(roll.total()).toBe(2);
 });
+
+test('test floating point', () => {
+  const expression = '14.3 * 2';
+  const roll = d20.roll(expression);
+
+  expect(roll.total()).toBe(28.6);
+});
