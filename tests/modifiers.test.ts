@@ -1,8 +1,8 @@
 import { expect, test } from '@jest/globals';
 
-import * as d20 from '../dist';
-import { TooManyRollsError } from '../dist/errors';
-import { RolledDice } from '../dist/roll';
+import * as d20 from '../src';
+import { TooManyRollsError } from '../src/errors';
+import { RolledDice } from '../src/roll';
 
 test('test explode infinite', () => {
   // This behavior should be consistent with Avrae

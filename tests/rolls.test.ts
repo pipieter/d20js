@@ -1,7 +1,7 @@
 import { expect, test } from '@jest/globals';
 
-import * as d20 from '../dist';
-import { ParserError } from '../dist/errors';
+import * as d20 from '../src';
+import { ParserError } from '../src/errors';
 
 test('verify roll bounds (Monte Carlo)', () => {
   const iterations = 1_000;

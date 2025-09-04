@@ -1,6 +1,6 @@
 import { expect, test } from '@jest/globals';
-import { ASTBinOp } from '../dist/parser';
-import * as d20 from '../dist';
+import { ASTBinOp } from '../src/parser';
+import * as d20 from '../src';
 import { isType } from './util';
 
 test('verify parser order of operations', () => {
