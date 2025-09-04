@@ -117,15 +117,35 @@ export class RolledDice extends RolledNode {
     return `[${kept.join(',')}]`;
   }
 
+  private getHighestDice(n: number): RolledDie[] {
+    const dice = this.keptDice();
+    dice.sort((a, b) => b.value - a.value);
+    return dice.slice(0, n);
+  }
+
+  private getLowestDice(n: number): RolledDie[] {
+    const dice = this.keptDice();
+    dice.sort((a, b) => a.value - b.value);
+    return dice.slice(0, n);
+  }
+
+  private getMatchedDice(selector: Selector): RolledDie[] {
+    if (selector.cat === 'h') return this.getHighestDice(selector.num);
+    if (selector.cat === 'l') return this.getLowestDice(selector.num);
+
+    return this.dice.filter((die) => selectorMatches(selector, die.value));
+  }
+
   private apply(modifier: Modifier): void {
     const functions = new Map([
       ['mi', this.applyMin],
       ['ma', this.applyMax],
       ['rr', this.applyReroll],
+      ['ro', this.applyRerollOnce],
     ]);
 
     if (!functions.has(modifier.cat)) {
-      throw new ModifierError(`The operator '${modifier.cat}' is not supported`);
+      throw new ModifierError(`The operator '${modifier.cat}' is not supported.`);
     }
 
     functions.get(modifier.cat)(modifier.sel);
@@ -164,6 +184,13 @@ export class RolledDice extends RolledNode {
       while (selectorMatches(selector, die.value)) {
         die.reroll();
       }
+    }
+  }
+
+  private applyRerollOnce(selector: Selector): void {
+    const dice = this.getMatchedDice(selector);
+    for (const die of dice) {
+      die.reroll();
     }
   }
 }
