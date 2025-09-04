@@ -14,10 +14,18 @@ test('verify roll bounds (Monte Carlo)', () => {
 });
 
 test('test basic math', () => {
-  const expression = '3 * 5 + 6 * (-3) / 4';
+  const expression = '3 * 5 + 6 * (-3) / 3';
   const roll = d20.roll(expression);
 
-  expect(roll.total()).toBe(10);
+  expect(roll.total()).toBe(9);
+});
+
+test('test string reconstruction', () => {
+  const expression = '9    * 3 + (-  2 / 4) - (10    ) ';
+  const roll = d20.roll(expression);
+
+  expect(roll.total()).toBe(9 * 3 + -2 / 4 - 10);
+  expect(roll.toString()).toBe('9 * 3 + (-2 / 4) - (10)');
 });
 
 test('test modulo operator', () => {
