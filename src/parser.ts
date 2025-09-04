@@ -48,6 +48,14 @@ function parseModifiers(expression: string): Modifier[] {
   return modifiers;
 }
 
+export function selectorMatches(selector: Selector, value: number): boolean {
+  if (selector.cat === '') return value === selector.num;
+  if (selector.cat === '<') return value < selector.num;
+  if (selector.cat === '>') return value > selector.num;
+
+  throw new ParserError(`Unsupported selector '${selector.cat}' for selectorMatches.`);
+}
+
 // ===================================
 // AST classes
 // ===================================

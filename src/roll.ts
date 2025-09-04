@@ -1,5 +1,15 @@
 import { ModifierError, ParserError, TooManyRollsError } from './errors';
-import { ASTBinOp, ASTDice, ASTLiteral, ASTNode, ASTParenthetical, ASTUnOp, Modifier, Selector } from './parser';
+import {
+  ASTBinOp,
+  ASTDice,
+  ASTLiteral,
+  ASTNode,
+  ASTParenthetical,
+  ASTUnOp,
+  Modifier,
+  Selector,
+  selectorMatches,
+} from './parser';
 
 // ===================================
 // Rolled classes
@@ -111,6 +121,7 @@ export class RolledDice extends RolledNode {
     const functions = new Map([
       ['mi', this.applyMin],
       ['ma', this.applyMax],
+      ['rr', this.applyReroll],
     ]);
 
     if (!functions.has(modifier.cat)) {
@@ -137,6 +148,22 @@ export class RolledDice extends RolledNode {
 
     for (const die of this.dice) {
       die.setMax(selector.num);
+    }
+  }
+
+  private applyReroll(selector: Selector): void {
+    if (selector.cat === 'h') {
+      throw new ModifierError(`The operator rr expects does not support the h selector.`);
+    }
+
+    if (selector.cat === 'l') {
+      throw new ModifierError(`The operator rr expects does not support the l selector.`);
+    }
+
+    for (const die of this.dice) {
+      while (selectorMatches(selector, die.value)) {
+        die.reroll();
+      }
     }
   }
 }
