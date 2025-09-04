@@ -22,3 +22,9 @@ export function joinAnd(strings: string[]) {
 
   return [head, tail].join(' and ');
 }
+
+export function sorted<T>(array: T[], compareFn?: (a: T, b: T) => number): T[] {
+  const copy = [...array];
+  copy.sort(compareFn);
+  return copy;
+}

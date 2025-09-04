@@ -10,6 +10,7 @@ import {
   Selector,
   selectorMatches,
 } from './parser';
+import { sorted } from './util';
 
 // ===================================
 // Rolled classes
@@ -118,15 +119,11 @@ export class RolledDice extends RolledNode {
   }
 
   private getHighestDice(n: number): RolledDie[] {
-    const dice = this.keptDice();
-    dice.sort((a, b) => b.value - a.value);
-    return dice.slice(0, n);
+    return sorted(this.keptDice(), (a, b) => b.value - a.value).slice(0, n);
   }
 
   private getLowestDice(n: number): RolledDie[] {
-    const dice = this.keptDice();
-    dice.sort((a, b) => a.value - b.value);
-    return dice.slice(0, n);
+    return sorted(this.keptDice(), (a, b) => a.value - b.value).slice(0, n);
   }
 
   private getMatchedDice(selector: Selector): RolledDie[] {
