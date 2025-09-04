@@ -46,6 +46,10 @@ class RolledDie extends RolledNode {
 
   constructor(context: RollContext, sides: number, kept: boolean = true) {
     super();
+    if (sides === 0) {
+      throw new ParserError('Cannot roll a zero-sided die.');
+    }
+
     this.kept = kept;
     this.sides = sides;
     this.context = context;

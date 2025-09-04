@@ -1,6 +1,7 @@
 import { expect, test } from '@jest/globals';
 
 import * as d20 from '../dist';
+import { ParserError } from '../dist/errors';
 
 test('verify roll bounds (Monte Carlo)', () => {
   const iterations = 1_000;
@@ -40,4 +41,15 @@ test('test floating point', () => {
   const roll = d20.roll(expression);
 
   expect(roll.total()).toBe(28.6);
+});
+
+test('test zero-sided die', () => {
+  const expression = '1d0';
+  expect(() => d20.roll(expression)).toThrow(ParserError);
+});
+
+test('test zero zero-sided die', () => {
+  const expression = '0d0';
+  const roll = d20.roll(expression);
+  expect(roll.total()).toBe(0);
 });
