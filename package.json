@@ -13,7 +13,8 @@
   "scripts": {
     "build": "tsc",
     "test": "jest",
-    "test-cc": "jest --coverage"
+    "test-cc": "jest --coverage",
+    "prepare": "tsc"
   },
   "dependencies": {
     "typescript": "^5.9.2"
