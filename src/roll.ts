@@ -97,7 +97,7 @@ export class RolledDice extends RolledNode {
     this.dice = [];
 
     for (let i = 0; i < this.count; i++) {
-      this.dice.push(new RolledDie(this.context, this.sides));
+      this.addNewDie();
     }
 
     for (const operator of this.modifiers) {
@@ -118,6 +118,10 @@ export class RolledDice extends RolledNode {
     return `[${kept.join(',')}]`;
   }
 
+  private addNewDie() {
+    this.dice.push(new RolledDie(this.context, this.sides));
+  }
+
   private getHighestDice(n: number): RolledDie[] {
     return sorted(this.keptDice(), (a, b) => b.value - a.value).slice(0, n);
   }
@@ -126,11 +130,21 @@ export class RolledDice extends RolledNode {
     return sorted(this.keptDice(), (a, b) => a.value - b.value).slice(0, n);
   }
 
-  private getMatchedDice(selector: Selector): RolledDie[] {
-    if (selector.cat === 'h') return this.getHighestDice(selector.num);
-    if (selector.cat === 'l') return this.getLowestDice(selector.num);
+  private getMatchedDice(selector: Selector, maxDice?: number): RolledDie[] {
+    let dice: RolledDie[] = [];
+    if (selector.cat === 'h') {
+      dice = this.getHighestDice(selector.num);
+    } else if (selector.cat === 'l') {
+      dice = this.getLowestDice(selector.num);
+    } else {
+      dice = this.dice.filter((die) => selectorMatches(selector, die.value));
+    }
 
-    return this.dice.filter((die) => selectorMatches(selector, die.value));
+    if (maxDice !== undefined) {
+      dice = dice.slice(0, maxDice);
+    }
+
+    return dice;
   }
 
   private apply(modifier: Modifier): void {
@@ -139,6 +153,7 @@ export class RolledDice extends RolledNode {
       ['ma', this.applyMax],
       ['rr', this.applyReroll],
       ['ro', this.applyRerollOnce],
+      ['ra', this.applyRerollAndAdd],
     ]);
 
     if (!functions.has(modifier.cat)) {
@@ -188,6 +203,13 @@ export class RolledDice extends RolledNode {
     const dice = this.getMatchedDice(selector);
     for (const die of dice) {
       die.reroll();
+    }
+  }
+
+  private applyRerollAndAdd(selector: Selector): void {
+    const dice = this.getMatchedDice(selector, 1);
+    if (dice.length > 0) {
+      this.addNewDie();
     }
   }
 }
