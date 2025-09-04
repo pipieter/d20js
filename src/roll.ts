@@ -96,12 +96,12 @@ export class RolledDice extends RolledNode {
       this.addNewDie();
     }
 
-    for (const operator of this.modifiers) {
-      this.apply(operator);
+    for (const modifier of this.modifiers) {
+      this.apply(modifier);
     }
   }
 
-  private keptDice(): RolledDie[] {
+  public keptDice(): RolledDie[] {
     return this.dice.filter((die) => die.kept);
   }
 
@@ -114,8 +114,10 @@ export class RolledDice extends RolledNode {
     return `[${kept.join(',')}]`;
   }
 
-  private addNewDie() {
-    this.dice.push(new RolledDie(this.context, this.sides));
+  private addNewDie(): RolledDie {
+    const die = new RolledDie(this.context, this.sides);
+    this.dice.push(die);
+    return die;
   }
 
   private getHighestDice(n: number): RolledDie[] {
@@ -144,20 +146,17 @@ export class RolledDice extends RolledNode {
   }
 
   private apply(modifier: Modifier): void {
-    const functions = new Map([
-      ['mi', this.applyMin],
-      ['ma', this.applyMax],
-      ['rr', this.applyReroll],
-      ['ro', this.applyRerollOnce],
-      ['ra', this.applyExplodeOnce],
-      ['e', this.applyExplode],
-    ]);
-
-    if (!functions.has(modifier.cat)) {
-      throw new ModifierError(`The operator '${modifier.cat}' is not supported.`);
+    // prettier-ignore
+    switch (modifier.cat) {
+      case 'mi': return this.applyMin(modifier.sel);
+      case 'ma': return this.applyMax(modifier.sel);
+      case 'rr': return this.applyReroll(modifier.sel);
+      case 'ro': return this.applyRerollOnce(modifier.sel);
+      case 'ra': return this.applyExplodeOnce(modifier.sel);
+      case 'e':  return this.applyExplode(modifier.sel);
     }
 
-    functions.get(modifier.cat)(modifier.sel);
+    throw new ModifierError(`The operator '${modifier.cat}' is not supported.`);
   }
 
   private applyMin(selector: Selector): void {
@@ -207,6 +206,23 @@ export class RolledDice extends RolledNode {
     const dice = this.getMatchedDice(selector, 1);
     if (dice.length > 0) {
       this.addNewDie();
+    }
+  }
+
+  private applyExplode(selector: Selector): void {
+    let toExplode = new Set(this.getMatchedDice(selector));
+    const alreadyExploded = new Set<RolledDie>();
+
+    while (toExplode.size > 0) {
+      for (const die of toExplode) {
+        this.addNewDie();
+        alreadyExploded.add(die);
+      }
+
+      toExplode = new Set(this.getMatchedDice(selector));
+      for (const exploded of alreadyExploded) {
+        toExplode.delete(exploded);
+      }
     }
   }
 }
