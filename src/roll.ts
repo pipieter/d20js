@@ -238,7 +238,7 @@ export class RolledBinOp extends RolledNode {
       case '*':
         return this.left.total() * this.right.total();
       case '/':
-        return Math.floor(this.left.total() / this.right.total());
+        return this.left.total() / this.right.total();
       case '%':
         return this.left.total() % this.right.total();
     }
