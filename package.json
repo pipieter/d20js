@@ -2,11 +2,8 @@
   "name": "d20js",
   "version": "1.0.0",
   "description": "D20 roll and distribution library based on the Python library of the same name.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "exports": {
-    "./*": "./dist/*"
-  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "author": "Pim Pieters",
   "license": "MIT",
   "homepage": "https://github.com/pipieter/d20js",

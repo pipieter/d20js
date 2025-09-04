@@ -3,6 +3,10 @@ import { Lexer } from './lexer';
 import { Parser } from './parser';
 import { Roller, RolledNode } from './roll';
 
+export * from './roll';
+export * from './parser';
+export * from './errors';
+
 export function parse(expression: string): ASTNode {
   const tokens = new Lexer(expression).parse();
   const ast = new Parser(tokens).parse();
