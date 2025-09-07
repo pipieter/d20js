@@ -56,6 +56,9 @@ export function selectorMatches(selector: Selector, value: number): boolean {
   throw new ParserError(`Unsupported selector '${selector.cat}' for selectorMatches.`);
 }
 
+export function modifierToString(modifier: Modifier): string {
+  return `${modifier.cat}${modifier.sel.cat}${modifier.sel.num}`;
+}
 // ===================================
 // AST classes
 // ===================================
@@ -90,7 +93,7 @@ export class ASTDice extends ASTNode {
   }
 
   public toString(): string {
-    const modifiers = this.modifiers.map((e) => e.toString()).join('');
+    const modifiers = this.modifiers.map(modifierToString).join('');
     return `${this.count}d${this.sides}${modifiers}`;
   }
 
