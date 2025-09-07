@@ -7,6 +7,7 @@ import {
   ASTParenthetical,
   ASTUnOp,
   Modifier,
+  modifierToString,
   Selector,
   selectorMatches,
 } from './parser';
@@ -128,7 +129,7 @@ export class RolledDice extends RolledNode {
   }
 
   public expression(): string {
-    const modifiers = this.modifiers.map((mod) => `${mod.cat}${mod.sel.cat}${mod.sel.num}`);
+    const modifiers = this.modifiers.map(modifierToString);
     return `${this.count}d${this.sides}${modifiers.join('')}`;
   }
 
