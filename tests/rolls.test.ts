@@ -27,6 +27,7 @@ test('test string reconstruction', () => {
 
   expect(roll.total()).toBe(9 * 3 + -2 / 4 - 10);
   expect(roll.toString()).toBe('9 * 3 + (-2 / 4) - (10)');
+  expect(roll.expression()).toBe('9 * 3 + (-2 / 4) - (10)');
 });
 
 test('test modulo operator', () => {
@@ -52,4 +53,11 @@ test('test zero zero-sided die', () => {
   const expression = '0d0';
   const roll = d20.roll(expression);
   expect(roll.total()).toBe(0);
+});
+
+test('test rebuild expression', () => {
+  const expression = '  1d20 *    3  + (7/ (-     8)) -         1d6mi3';
+  const roll = d20.roll(expression);
+
+  expect(roll.expression()).toBe('1d20 * 3 + (7 / (-8)) - 1d6mi3');
 });

@@ -19,6 +19,7 @@ import { sorted } from './util';
 export abstract class RolledNode {
   public abstract total(): number;
   public abstract toString(): string;
+  public abstract expression(): string;
 }
 
 export class RolledLiteral extends RolledNode {
@@ -35,6 +36,10 @@ export class RolledLiteral extends RolledNode {
 
   public toString(): string {
     return this.value.toString();
+  }
+
+  public expression(): string {
+    return this.toString();
   }
 }
 
@@ -79,6 +84,10 @@ class RolledDie extends RolledNode {
   public toString(): string {
     return this.value.toString();
   }
+
+  public expression(): string {
+    return `1d${this.sides}`;
+  }
 }
 
 export class RolledDice extends RolledNode {
@@ -116,6 +125,11 @@ export class RolledDice extends RolledNode {
   public toString(): string {
     const kept = this.keptDice().map((die) => die.toString());
     return `[${kept.join(',')}]`;
+  }
+
+  public expression(): string {
+    const modifiers = this.modifiers.map((mod) => `${mod.cat}${mod.sel.cat}${mod.sel.num}`);
+    return `${this.count}d${this.sides}${modifiers.join('')}`;
   }
 
   private addNewDie(): RolledDie {
@@ -275,6 +289,10 @@ export class RolledUnOp extends RolledNode {
   public toString(): string {
     return `${this.op}${this.node.toString()}`;
   }
+
+  public expression(): string {
+    return `${this.op}${this.node.expression()}`;
+  }
 }
 
 export class RolledBinOp extends RolledNode {
@@ -308,6 +326,10 @@ export class RolledBinOp extends RolledNode {
   public toString(): string {
     return `${this.left.toString()} ${this.op} ${this.right.toString()}`;
   }
+
+  public expression(): string {
+    return `${this.left.expression()} ${this.op} ${this.right.expression()}`;
+  }
 }
 
 export class RolledParenthetical extends RolledNode {
@@ -324,6 +346,10 @@ export class RolledParenthetical extends RolledNode {
 
   public toString(): string {
     return `(${this.node.toString()})`;
+  }
+
+  public expression(): string {
+    return `(${this.node.expression()})`;
   }
 }
 
