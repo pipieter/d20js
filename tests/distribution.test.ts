@@ -70,3 +70,26 @@ test('distribution mi modifier multiple dice', () => {
   expect(distribution.get(11)).toBeCloseTo(0.0556, 3);
   expect(distribution.get(12)).toBeCloseTo(0.0278, 3);
 });
+
+test('distribution ma modifier', () => {
+  const distribution = d20.distribution('1d6ma4');
+
+  expect(distribution.get(1)).toBeCloseTo(0.1667, 3);
+  expect(distribution.get(2)).toBeCloseTo(0.1667, 3);
+  expect(distribution.get(3)).toBeCloseTo(0.1667, 3);
+  expect(distribution.get(4)).toBeCloseTo(0.5, 3);
+});
+
+test('distribution mi modifier multiple dice', () => {
+  const distribution = d20.distribution('2d6ma4');
+
+  // Odds based on anydice.com
+
+  expect(distribution.get(8)).toBeCloseTo(0.25, 3);
+  expect(distribution.get(7)).toBeCloseTo(0.1667, 3);
+  expect(distribution.get(6)).toBeCloseTo(0.1944, 3);
+  expect(distribution.get(5)).toBeCloseTo(0.2222, 3);
+  expect(distribution.get(4)).toBeCloseTo(0.0833, 3);
+  expect(distribution.get(3)).toBeCloseTo(0.0556, 3);
+  expect(distribution.get(2)).toBeCloseTo(0.0278, 3);
+});

@@ -180,7 +180,8 @@ class ModifiedDistribution {
 
     for (const modifier of modifiers) {
       if (modifier.cat === 'mi') this.applyMin(modifier.sel);
-      else throw new DistributionError(`Dice modifier ${modifier.cat} is not supported yet for distributions.`);
+      else if (modifier.cat === 'ma') this.applyMax(modifier.sel);
+      else throw new DistributionError(`Dice modifier ${modifier.cat} is not supported for distributions.`);
     }
   }
 
@@ -206,6 +207,10 @@ class ModifiedDistribution {
 
   private applyMin(selector: Selector): void {
     this.transformKeys((key) => key.map((k) => Math.max(k, selector.num)));
+  }
+
+  private applyMax(selector: Selector): void {
+    this.transformKeys((key) => key.map((k) => Math.min(k, selector.num)));
   }
 
   public distribution(): Distribution {
