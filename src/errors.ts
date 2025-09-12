@@ -15,7 +15,7 @@ export class ParserError extends Error {
 export class DistributionError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'ParserError';
+    this.name = 'DistributionError';
   }
 }
 
