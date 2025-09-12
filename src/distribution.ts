@@ -53,7 +53,8 @@ export class Distribution {
     for (const thisKey of this.keys()) {
       for (const otherKey of other.keys()) {
         const key = keyTransform(thisKey, otherKey);
-        newDist.set(key, this.get(thisKey) * other.get(otherKey));
+        const value = (newDist.get(key) || 0) + this.get(thisKey) * other.get(otherKey);
+        newDist.set(key, value);
       }
     }
 
