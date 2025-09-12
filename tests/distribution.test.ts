@@ -45,3 +45,28 @@ test('distribution dice plus literal', () => {
   expect(distribution.get(5 + 4)).toEqual(1.0 / 6.0);
   expect(distribution.get(6 + 4)).toEqual(1.0 / 6.0);
 });
+
+test('distribution mi modifier', () => {
+  const distribution = d20.distribution('1d6mi3');
+
+  expect(distribution.get(1)).toBe(0);
+  expect(distribution.get(2)).toBe(0);
+  expect(distribution.get(3)).toBeCloseTo(0.5, 3);
+  expect(distribution.get(4)).toBeCloseTo(0.1667, 3);
+  expect(distribution.get(5)).toBeCloseTo(0.1667, 3);
+  expect(distribution.get(6)).toBeCloseTo(0.1667, 3);
+});
+
+test('distribution mi modifier multiple dice', () => {
+  const distribution = d20.distribution('2d6mi3');
+
+  // Odds based on anydice.com
+
+  expect(distribution.get(6)).toBeCloseTo(0.25, 3);
+  expect(distribution.get(7)).toBeCloseTo(0.1667, 3);
+  expect(distribution.get(8)).toBeCloseTo(0.1944, 3);
+  expect(distribution.get(9)).toBeCloseTo(0.2222, 3);
+  expect(distribution.get(10)).toBeCloseTo(0.0833, 3);
+  expect(distribution.get(11)).toBeCloseTo(0.0556, 3);
+  expect(distribution.get(12)).toBeCloseTo(0.0278, 3);
+});

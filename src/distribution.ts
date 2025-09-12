@@ -1,12 +1,13 @@
 import { DistributionError, DivideByZeroError } from './errors';
-import { ASTBinOp, ASTDice, ASTLiteral, ASTNode, ASTParenthetical, ASTUnOp, Modifier } from './parser';
+import { ASTBinOp, ASTDice, ASTLiteral, ASTNode, ASTParenthetical, ASTUnOp, Modifier, Selector } from './parser';
+import { cartesianProduct, range, sorted, sum } from './util';
 
 export class Distribution {
   private readonly dist: Map<number, number>;
 
   constructor(dist: Map<number, number>) {
     // Check if total distribution odds are (nearly) equal to 1.0
-    const total = Array.from(dist.values()).reduce((a, b) => a + b, 0);
+    const total = sum(Array.from(dist.values()));
     if (Math.abs(1.0 - total) >= 1e-6) {
       throw new DistributionError(`Distribution odds total ${total} instead of 1.0`);
     }
@@ -34,9 +35,7 @@ export class Distribution {
 
   public mean(transform?: (value: number) => number): number {
     if (!transform) transform = (x) => x; // id transform
-    return this.keys()
-      .map((key) => transform(this.get(key)))
-      .reduce((a, b) => a + b, 0);
+    return sum(this.keys().map((key) => transform(this.get(key))));
   }
 
   public stdev(): number {
@@ -147,7 +146,7 @@ export class Distribution {
   private static fromDice(ast: ASTDice): Distribution {
     // Modified dice are handled separately, as they require more precise handling.
     if (ast.isModified()) {
-      return new ModifiedDiceDistribution(ast.count, ast.sides, ast.modifiers).distribution();
+      return new ModifiedDistribution(ast.count, ast.sides, ast.modifiers).distribution();
     }
 
     const count = ast.count;
@@ -162,12 +161,61 @@ export class Distribution {
   }
 }
 
-class ModifiedDiceDistribution {
+class ModifiedDistribution {
+  private readonly count: number;
+  private readonly sides: number;
+  private dist: Map<string, number>;
+
   constructor(count: number, sides: number, modifiers: Modifier[]) {
-    throw new DistributionError(`Modified dice distribution is not supported yet.`);
+    this.count = count;
+    this.sides = sides;
+    this.dist = new Map();
+
+    const keys = cartesianProduct(range(1, sides), count);
+    for (const key of keys) {
+      const newKey = ModifiedDistribution.keyToString(key);
+      const newValue = (this.dist.get(newKey) || 0) + 1.0 / keys.length;
+      this.dist.set(newKey, newValue);
+    }
+
+    for (const modifier of modifiers) {
+      if (modifier.cat === 'mi') this.applyMin(modifier.sel);
+      else throw new DistributionError(`Dice modifier ${modifier.cat} is not supported yet for distributions.`);
+    }
+  }
+
+  private static keyToString(key: number[]): string {
+    return sorted(key).join(',');
+  }
+
+  private static stringToKey(str: string): number[] {
+    return sorted(str.split(',').map(Number));
+  }
+
+  private transformKeys(transform: (key: number[]) => number[]) {
+    const newDist = new Map<string, number>();
+
+    for (const [key, value] of this.dist.entries()) {
+      const newKey = ModifiedDistribution.keyToString(transform(ModifiedDistribution.stringToKey(key)));
+      const newValue = (newDist.get(newKey) || 0) + value;
+      newDist.set(newKey, newValue);
+    }
+
+    this.dist = newDist;
+  }
+
+  private applyMin(selector: Selector): void {
+    this.transformKeys((key) => key.map((k) => Math.max(k, selector.num)));
   }
 
   public distribution(): Distribution {
-    throw new DistributionError(`Modified dice distribution is not supported yet.`);
+    const dist = new Map<number, number>();
+    for (const [key, value] of this.dist.entries()) {
+      const distKey = sum(ModifiedDistribution.stringToKey(key));
+      const distValue = (dist.get(distKey) || 0) + value;
+      dist.set(distKey, distValue);
+    }
+
+    return new Distribution(dist);
   }
 }
