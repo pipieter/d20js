@@ -133,7 +133,7 @@ export class Distribution {
 
   private static uniform(sides: number): Distribution {
     const dist = new Map<number, number>();
-    for (let i = 0; i <= sides; i++) {
+    for (let i = 1; i <= sides; i++) {
       dist.set(i, 1 / sides);
     }
     return new Distribution(dist);
