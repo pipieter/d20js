@@ -12,6 +12,13 @@ export class ParserError extends Error {
   }
 }
 
+export class DistributionError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ParserError';
+  }
+}
+
 export class ModifierError extends Error {
   constructor(message: string) {
     super(message);
@@ -23,5 +30,12 @@ export class TooManyRollsError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'TooManyRollsError';
+  }
+}
+
+export class DivideByZeroError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'DivideByZeroError';
   }
 }

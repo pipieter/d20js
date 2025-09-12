@@ -97,7 +97,7 @@ export class ASTDice extends ASTNode {
     return `${this.count}d${this.sides}${modifiers}`;
   }
 
-  public isOperated(): boolean {
+  public isModified(): boolean {
     return this.modifiers.length > 0;
   }
 }
