@@ -14,13 +14,14 @@
     "build": "tsc",
     "test": "jest",
     "test-cc": "jest --coverage",
-    "prepare": "tsc"
+    "prepare": "tsc",
+    "grammar": "peggy -c peggy.config.mjs"
   },
-  "dependencies": {},
   "devDependencies": {
-    "typescript": "^5.9.2",
     "@types/jest": "^30.0.0",
     "jest": "^30.1.3",
-    "ts-jest": "^29.4.1"
+    "peggy": "^5.0.6",
+    "ts-jest": "^29.4.1",
+    "typescript": "^5.9.2"
   }
 }
