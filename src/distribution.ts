@@ -171,7 +171,6 @@ function calculateDiceDistribution(dice: ASTDice): Distribution {
 }
 
 function calculateDiscreteDiceDistribution(dice: ASTDice): Distribution {
-  console.log(Math.pow(dice.sides, dice.count));
   if (Math.pow(dice.sides, dice.count) > OperationLimits) {
     throw new DistributionError(`Dice expression with modifiers '${dice.toString()}' is too large to calculate!`);
   }
