@@ -1,6 +1,6 @@
 import { DistributionError } from './errors';
-import { ASTBinOp, ASTDice, ASTLiteral, ASTNode, ASTParenthetical, ASTUnOp } from './parser';
-import { sum } from './util';
+import { ASTBinOp, ASTDice, ASTLiteral, ASTNode, ASTParenthetical, ASTUnOp, DiceOperation, Selector, selectorMatches } from './parser';
+import { cartesianProduct, range, sum } from './util';
 
 const DiceLimits = 101 * 101; //Allow 100d100, but nothing more
 const OperationLimits = 8192;
@@ -170,11 +170,92 @@ function calculateDiceDistribution(dice: ASTDice): Distribution {
   return distribution;
 }
 
+class DiscreteDistribution {
+  private readonly counts: Map<string, number>;
+
+  constructor() {
+    this.counts = new Map();
+  }
+
+  public static fromDice(count: number, sides: number): DiscreteDistribution {
+    const distribution = new DiscreteDistribution();
+    const ranges: number[][] = [];
+    for (let i = 0; i < count; i++) {
+      ranges.push(range(1, sides));
+    }
+    const products = cartesianProduct(ranges);
+    for (const product of products) {
+      distribution.add(product);
+    }
+    return distribution;
+  }
+
+  public add(key: number[]) {
+    const serialized = DiscreteDistribution.serialize(key);
+    const current = this.counts.get(serialized) ?? 0;
+    this.counts.set(serialized, current + 1);
+  }
+
+  public total(): number {
+    let total = 0;
+    for (const value of this.counts.values()) {
+      total += value;
+    }
+    return total;
+  }
+
+  public distribution(): Distribution {
+    const total = this.total();
+    const map = new Map<number, number>();
+
+    for (const [key, count] of this.counts.entries()) {
+      const deserialized = sum(DiscreteDistribution.deserialize(key));
+      const currentValue = map.get(deserialized) ?? 0;
+      map.set(deserialized, currentValue + count / total);
+    }
+
+    return new Distribution(map);
+  }
+
+  private static serialize(key: number[]): string {
+    return key.map((num) => num.toString()).join(',');
+  }
+
+  private static deserialize(key: string): number[] {
+    return key.split(',').map((num) => parseInt(num));
+  }
+
+  public transform(transform: (rolls: number[]) => number[]): DiscreteDistribution {
+    const distribution = new DiscreteDistribution();
+    for (const key of this.counts.keys()) {
+      const deserialized = DiscreteDistribution.deserialize(key);
+      const newKey = transform(deserialized);
+      distribution.add(newKey);
+    }
+    return distribution;
+  }
+
+  public applyOperation(operation: DiceOperation): DiscreteDistribution {
+    // Minimum or maximum
+    if (['mi', 'ma'].includes(operation.op)) {
+      if (operation.selector.type !== null) throw new DistributionError(`Invalid selector type '${operation.selector.type}'for '${operation.op}' operation!`);
+      if (operation.op === 'mi') return this.transform((rolls) => rolls.map((roll) => Math.max(roll, operation.selector.value)));
+      if (operation.op === 'ma') return this.transform((rolls) => rolls.map((roll) => Math.min(roll, operation.selector.value)));
+    }
+
+    throw new DistributionError(`Unsupported dice operation for distribution '${operation.op}'`);
+  }
+}
+
 function calculateDiscreteDiceDistribution(dice: ASTDice): Distribution {
   if (Math.pow(dice.sides, dice.count) > OperationLimits) {
     throw new DistributionError(`Dice expression with modifiers '${dice.toString()}' is too large to calculate!`);
   }
 
-  // TODO throw new Error(`calculateDiscreteDiceDistribution not implemented yet!`);
-  return Distribution.uniform(1);
+  let distribution = DiscreteDistribution.fromDice(dice.count, dice.sides);
+  for (const operation of dice.operations) {
+    distribution = distribution.applyOperation(operation);
+  }
+
+  return distribution.distribution();
 }
