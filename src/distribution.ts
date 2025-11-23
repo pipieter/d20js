@@ -12,12 +12,8 @@ function id<T>(v: T): T {
 export class Distribution {
   private readonly values: Map<number, number>;
 
-  constructor(values?: Map<number, number> | undefined) {
-    if (!values) {
-      this.values = new Map([[0.0, 1.0]]);
-    } else {
-      this.values = values;
-    }
+  constructor(values: Map<number, number>) {
+    this.values = values;
   }
 
   public static uniform(sides: number): Distribution {
@@ -72,6 +68,14 @@ export class Distribution {
     return this.values.get(key) ?? 0;
   }
 
+  public min(): number {
+    return Math.min(...this.keys());
+  }
+
+  public max(): number {
+    return Math.max(...this.keys());
+  }
+
   public entries(): [number, number][] {
     return Array.from(this.values.entries());
   }
@@ -95,7 +99,7 @@ export class Distribution {
   public static combine(a: Distribution, b: Distribution, func: (a: number, b: number) => number): Distribution {
     const values = new Map<number, number>();
     for (const [ka, va] of a.values.entries()) {
-      for (const [kb, vb] of a.values.entries()) {
+      for (const [kb, vb] of b.values.entries()) {
         const key = func(ka, kb);
         const value = (values.get(key) ?? 0) + va * vb;
         values.set(key, value);
@@ -139,14 +143,6 @@ export class Distribution {
   }
 }
 
-function uniform(sides: number): Map<number, number> {
-  const map = new Map<number, number>();
-  for (let i = 1; i <= sides; i++) {
-    map.set(i, 1 / sides);
-  }
-  return map;
-}
-
 function calculateDiceDistribution(dice: ASTDice): Distribution {
   if (dice.operations.length > 0) {
     return calculateDiceDistribution(dice);
@@ -160,19 +156,11 @@ function calculateDiceDistribution(dice: ASTDice): Distribution {
     throw new DistributionError(`There are too many dice to calculate in '${dice.toString()}'!`);
   }
 
-  let distribution = new Distribution();
+  let distribution = new Distribution(new Map([[0.0, 1.0]]));
   for (let i = 0; i < dice.count; i++) {
     const uniform = Distribution.uniform(dice.sides);
     distribution = Distribution.add(distribution, uniform);
   }
 
   return distribution;
-}
-
-function calculateDiscreteDiceDistribution(dice: ASTDice): Distribution {
-  if (dice.operations.length > OperationLimits) {
-    throw new DistributionError(`There are too many operations to calculate in '${dice.toString()}'!`);
-  }
-
-  throw new DistributionError('calculateDiscreteDiceDistribution not implemented yet');
 }
