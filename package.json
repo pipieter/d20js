@@ -11,13 +11,15 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "peggy -c scripts/peggy.build.mjs && tsc",
     "test": "vitest",
-    "prepare": "peggy -c scripts/peggy.build.mjs &&tsc",
+    "prepare": "peggy -c scripts/peggy.build.mjs && tsc",
     "grammar": "peggy -c scripts/peggy.config.mjs"
   },
+  "dependencies": {
+    "peggy": "^5.0.6"
+  },
   "devDependencies": {
-    "peggy": "^5.0.6",
     "typescript": "^5.9.2",
     "vitest": "^4.0.13"
   }
