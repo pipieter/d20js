@@ -8,7 +8,7 @@ export class Parser {
       const parsed = parse(expression);
       return this.parseNode(parsed);
     } catch {
-      throw new ParserError(`Could not parse expression '${expression}'!`)
+      throw new ParserError(`Could not parse expression '${expression}'!`);
     }
   }
 
@@ -17,7 +17,7 @@ export class Parser {
       return new ASTLiteral(node.value);
     }
     if (node.type === 'Dice') {
-      const operations = node.op.map((op: any) => new DiceOperation(op.op, op.selector));
+      const operations = node.op.map((op: any) => new DiceOperation(op.op, new Selector(op.selector.type, op.selector.value)));
       return new ASTDice(node.expression.count, node.expression.sides, operations);
     }
     if (node.type === 'Parenthetical') {
@@ -132,9 +132,14 @@ export class ASTParenthetical extends ASTNode {
 // Operators
 // ===================================
 
-export interface Selector {
-  type: string | null;
-  value: number;
+export class Selector {
+  public readonly type: string | null;
+  public readonly value: number;
+
+  constructor(type: string | null, value: number) {
+    this.type = type;
+    this.value = value;
+  }
 }
 
 export class DiceOperation {
