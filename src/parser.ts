@@ -148,7 +148,7 @@ export class DiceOperation {
 }
 
 export function selectorMatches(selector: Selector, value: number): boolean {
-  if (selector.type === '') return value === selector.value;
+  if (selector.type === null) return value === selector.value;
   if (selector.type === '<') return value < selector.value;
   if (selector.type === '>') return value > selector.value;
 

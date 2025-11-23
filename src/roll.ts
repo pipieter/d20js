@@ -190,7 +190,7 @@ export class RolledDice extends RolledNode {
   }
 
   private applyMax(selector: Selector): void {
-    if (selector.type !== '') {
+    if (selector.type !== null) {
       throw new ModifierError(`The operator ma expects no category, but '${selector.type}' was given.`);
     }
 
