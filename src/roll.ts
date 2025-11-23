@@ -180,7 +180,7 @@ export class RolledDice extends RolledNode {
   }
 
   private applyMin(selector: Selector): void {
-    if (selector.type !== '') {
+    if (selector.type !== null) {
       throw new ModifierError(`The operator mi expects no category, but '${selector.type}' was given.`);
     }
 

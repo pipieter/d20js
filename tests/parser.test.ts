@@ -1,4 +1,4 @@
-import { expect, test } from '@jest/globals';
+import { expect, test } from 'vitest';
 import { ASTBinOp } from '../src/parser';
 import * as d20 from '../src';
 import { isType } from './util';
