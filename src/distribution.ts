@@ -150,7 +150,7 @@ export class Distribution {
 
 function calculateDiceDistribution(dice: ASTDice): Distribution {
   if (dice.operations.length > 0) {
-    return calculateDiceDistribution(dice);
+    return calculateDiscreteDiceDistribution(dice);
   }
 
   if (dice.sides === 0) {
@@ -168,4 +168,14 @@ function calculateDiceDistribution(dice: ASTDice): Distribution {
   }
 
   return distribution;
+}
+
+function calculateDiscreteDiceDistribution(dice: ASTDice): Distribution {
+  console.log(Math.pow(dice.sides, dice.count));
+  if (Math.pow(dice.sides, dice.count) > OperationLimits) {
+    throw new DistributionError(`Dice expression with modifiers '${dice.toString()}' is too large to calculate!`);
+  }
+
+  // TODO throw new Error(`calculateDiscreteDiceDistribution not implemented yet!`);
+  return Distribution.uniform(1);
 }
