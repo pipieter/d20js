@@ -12,15 +12,13 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "jest",
-    "test-cc": "jest --coverage",
-    "prepare": "tsc"
+    "test": "vitest",
+    "prepare": "tsc",
+    "grammar": "peggy -c scripts/peggy.config.mjs"
   },
-  "dependencies": {},
   "devDependencies": {
+    "peggy": "^5.0.6",
     "typescript": "^5.9.2",
-    "@types/jest": "^30.0.0",
-    "jest": "^30.1.3",
-    "ts-jest": "^29.4.1"
+    "vitest": "^4.0.13"
   }
 }

@@ -6,8 +6,7 @@ import {
   ASTNode,
   ASTParenthetical,
   ASTUnOp,
-  Modifier,
-  modifierToString,
+  DiceOperation,
   Selector,
   selectorMatches,
 } from './parser';
@@ -94,23 +93,23 @@ class RolledDie extends RolledNode {
 export class RolledDice extends RolledNode {
   public readonly count: number;
   public readonly sides: number;
-  public readonly modifiers: Modifier[];
+  public readonly operations: DiceOperation[];
   public readonly dice: RolledDie[];
   private readonly context: RollContext;
 
-  constructor(context: RollContext, count: number, sides: number, modifiers: Modifier[]) {
+  constructor(context: RollContext, count: number, sides: number, operations: DiceOperation[]) {
     super();
     this.context = context;
     this.count = count;
     this.sides = sides;
-    this.modifiers = modifiers;
+    this.operations = operations;
     this.dice = [];
 
     for (let i = 0; i < this.count; i++) {
       this.addNewDie();
     }
 
-    for (const modifier of this.modifiers) {
+    for (const modifier of this.operations) {
       this.apply(modifier);
     }
   }
@@ -129,7 +128,7 @@ export class RolledDice extends RolledNode {
   }
 
   public expression(): string {
-    const modifiers = this.modifiers.map(modifierToString);
+    const modifiers = this.operations.map((op) => op.toString());
     return `${this.count}d${this.sides}${modifiers.join('')}`;
   }
 
@@ -149,10 +148,10 @@ export class RolledDice extends RolledNode {
 
   private getMatchedDice(selector: Selector, maxDice?: number): RolledDie[] {
     let dice: RolledDie[] = [];
-    if (selector.cat === 'h') {
-      dice = this.getHighestDice(selector.num);
-    } else if (selector.cat === 'l') {
-      dice = this.getLowestDice(selector.num);
+    if (selector.type === 'h') {
+      dice = this.getHighestDice(selector.value);
+    } else if (selector.type === 'l') {
+      dice = this.getLowestDice(selector.value);
     } else {
       dice = this.dice.filter((die) => selectorMatches(selector, die.value));
     }
@@ -164,48 +163,48 @@ export class RolledDice extends RolledNode {
     return dice;
   }
 
-  private apply(modifier: Modifier): void {
+  private apply(operation: DiceOperation): void {
     // prettier-ignore
-    switch (modifier.cat) {
-      case 'mi': return this.applyMin(modifier.sel);
-      case 'ma': return this.applyMax(modifier.sel);
-      case 'rr': return this.applyReroll(modifier.sel);
-      case 'ro': return this.applyRerollOnce(modifier.sel);
-      case 'ra': return this.applyExplodeOnce(modifier.sel);
-      case 'e':  return this.applyExplode(modifier.sel);
-      case 'k':  return this.applyKeep(modifier.sel);
-      case 'p':  return this.applyDrop(modifier.sel);
+    switch (operation.op) {
+      case 'mi': return this.applyMin(operation.selector);
+      case 'ma': return this.applyMax(operation.selector);
+      case 'rr': return this.applyReroll(operation.selector);
+      case 'ro': return this.applyRerollOnce(operation.selector);
+      case 'ra': return this.applyExplodeOnce(operation.selector);
+      case 'e':  return this.applyExplode(operation.selector);
+      case 'k':  return this.applyKeep(operation.selector);
+      case 'p':  return this.applyDrop(operation.selector);
     }
 
-    throw new ModifierError(`The operator '${modifier.cat}' is not supported.`);
+    throw new ModifierError(`The operator '${operation.op}' is not supported.`);
   }
 
   private applyMin(selector: Selector): void {
-    if (selector.cat !== '') {
-      throw new ModifierError(`The operator mi expects no category, but '${selector.cat}' was given.`);
+    if (selector.type !== null) {
+      throw new ModifierError(`The operator mi expects no category, but '${selector.type}' was given.`);
     }
 
     for (const die of this.dice) {
-      die.setMin(selector.num);
+      die.setMin(selector.value);
     }
   }
 
   private applyMax(selector: Selector): void {
-    if (selector.cat !== '') {
-      throw new ModifierError(`The operator ma expects no category, but '${selector.cat}' was given.`);
+    if (selector.type !== null) {
+      throw new ModifierError(`The operator ma expects no category, but '${selector.type}' was given.`);
     }
 
     for (const die of this.dice) {
-      die.setMax(selector.num);
+      die.setMax(selector.value);
     }
   }
 
   private applyReroll(selector: Selector): void {
-    if (selector.cat === 'h') {
+    if (selector.type === 'h') {
       throw new ModifierError(`The operator rr expects does not support the h selector.`);
     }
 
-    if (selector.cat === 'l') {
+    if (selector.type === 'l') {
       throw new ModifierError(`The operator rr expects does not support the l selector.`);
     }
 
@@ -403,7 +402,7 @@ export class Roller {
   }
 
   private rollDice(ast: ASTDice): RolledDice {
-    return new RolledDice(this.context, ast.count, ast.sides, ast.modifiers);
+    return new RolledDice(this.context, ast.count, ast.sides, ast.operations);
   }
 
   private rollUnOp(ast: ASTUnOp): RolledUnOp {
