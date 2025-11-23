@@ -35,6 +35,13 @@ test('test limits', () => {
   expect(() => d20.distribution('6d6mi3')).toThrowError(d20.DistributionError); // Operators, too many possibilities
 });
 
+test('test invalid selectors', () => {
+  // These tests should throw errors, because the used selectors are not supported for the operations
+
+  expect(() => d20.distribution('4d20mi<3')).toThrow(d20.DistributionError);
+  expect(() => d20.distribution('4d20mal3')).toThrow(d20.DistributionError);
+});
+
 // ==========================================
 // Test the results of individual expressions
 // ==========================================
