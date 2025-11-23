@@ -29,7 +29,13 @@ DiceOperator = "rr" / "ro" / "ra" / "e" / "mi" / "ma"
 SelectorType = "l" / "h" / "<" / ">"
 Selector     = type:SelectorType? value:Integer { return { type: type, value: value }; }
 
+Decimal        = digits:[0-9]+ "." decimals:[0-9]+ {
+  const sdigits = digits.join("")
+  const sdecimals = decimals.join("")
+  return parseFloat(sdigits + "." + sdecimals); 
+}
 Integer        = digits:[0-9]+ { return parseInt(digits.join(""), 10); }
+
 DiceOperation  = op:(DiceOperator / SetOperator) selector:Selector { return { op: op, selector: selector }; }
 DiceExpression = count:Integer? "d" sides:Integer { 
     // e.g. d100, missing count means one
@@ -39,8 +45,11 @@ DiceExpression = count:Integer? "d" sides:Integer {
 
 // Atoms
 
-Literal = value:Integer                               { return { type: "Literal", value: value }; }
-Dice    = expression:DiceExpression op:DiceOperation* { return { type: "Dice", expression: expression, op: op}}
+Literal 
+  = value:Decimal { return { type: "Literal", value: value }; }
+  / value:Integer { return { type: "Literal", value: value }; }
+  
+Dice = expression:DiceExpression op:DiceOperation* { return { type: "Dice", expression: expression, op: op}}
 
 // Expression
 

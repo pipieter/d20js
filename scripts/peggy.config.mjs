@@ -1,6 +1,6 @@
 // MJS
 export default {
-  input: 'src/grammar.peggy',
+  input: 'scripts/grammar.peggy',
   output: 'src/grammar.js',
   format: 'es',
   dts: true,

@@ -14,7 +14,7 @@
     "build": "tsc",
     "test": "vitest",
     "prepare": "tsc",
-    "grammar": "peggy -c peggy.config.mjs"
+    "grammar": "peggy -c scripts/peggy.config.mjs"
   },
   "devDependencies": {
     "peggy": "^5.0.6",
