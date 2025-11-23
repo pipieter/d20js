@@ -2,6 +2,10 @@ import { expect, test } from 'vitest';
 
 import * as d20 from '../src';
 
+// ==========================================
+// Test the correct inner behavior
+// ==========================================
+
 test('test d20', () => {
   const distribution = d20.distribution('1d20');
 
@@ -15,6 +19,43 @@ test('test d20', () => {
 
   expect(distribution.get(100)).toEqual(0.0);
 });
+
+test('test exceptions', () => {
+  expect(() => d20.distribution('1d6 / 0')).toThrowError(d20.DistributionError); // Divide by zero error
+  expect(() => d20.distribution('1d6 +')).toThrowError(d20.ParserError); // Invalid expression
+});
+
+test('test limits', () => {
+  // The expressions below should within the acceptable limits
+
+  d20.distribution('50d50'); // No operators, less than 101*101
+  d20.distribution('4d6mi3'); // Operators, less than 8192 possibilities
+
+  expect(() => d20.distribution('400d400')).toThrowError(d20.DistributionError); // No operators, too many dice
+  expect(() => d20.distribution('6d6mi3')).toThrowError(d20.DistributionError); // Operators, too many possibilities
+});
+
+// ==========================================
+// Test the results of individual expressions
+// ==========================================
+
+// Utility function to very distributions based on anydice results
+function verifyDistribution(expression: string, probabilities: [number, number][], mean: number, stddev: number) {
+  const distribution = d20.distribution(expression);
+
+  const min = Math.min(...probabilities.map((prob) => prob[0]));
+  const max = Math.max(...probabilities.map((prob) => prob[0]));
+
+  expect(distribution.min()).toEqual(min);
+  expect(distribution.max()).toEqual(max);
+
+  for (const [key, value] of probabilities) {
+    expect(distribution.get(key)).toBeCloseTo(value, 4);
+  }
+
+  expect(distribution.mean()).toBeCloseTo(mean, 2);
+  expect(distribution.stddev()).toBeCloseTo(stddev, 2);
+}
 
 test('test complex expression', () => {
   // Results were verified using anydice
@@ -46,30 +87,42 @@ test('test complex expression', () => {
   const mean = 11.5;
   const stddev = 3.71;
 
-  const distribution = d20.distribution(expression);
-
-  expect(distribution.min()).toEqual(1);
-  expect(distribution.max()).toEqual(22);
-
-  for (const [key, value] of probabilities) {
-    expect(distribution.get(key)).toBeCloseTo(value, 4);
-  }
-
-  expect(distribution.mean()).toBeCloseTo(mean, 2);
-  expect(distribution.stddev()).toBeCloseTo(stddev, 2);
+  verifyDistribution(expression, probabilities, mean, stddev);
 });
 
-test('test exceptions', () => {
-  expect(() => d20.distribution('1d6 / 0')).toThrowError(d20.DistributionError); // Divide by zero error
-  expect(() => d20.distribution('1d6 +')).toThrowError(d20.ParserError); // Invalid expression
+test('test mi operator', () => {
+  // Results were verified using anydice using input `output 3d{3,3,3,4,5,6}`
+  const expression = '3d6mi3';
+  const probabilities: [number, number][] = [
+    [9, 0.125],
+    [10, 0.125],
+    [11, 0.1667],
+    [12, 0.213],
+    [13, 0.1389],
+    [14, 0.1111],
+    [15, 0.0741],
+    [16, 0.0278],
+    [17, 0.0139],
+    [18, 0.0046],
+  ];
+  const mean = 12.0;
+  const stddev = 2.0;
+
+  verifyDistribution(expression, probabilities, mean, stddev);
 });
 
-test('test limits', () => {
-  // The expressions below should within the acceptable limits
+test('test ma operator', () => {
+  // Results were verified using anydice using input `output 4d{1,2,2,2}`
+  const expression = '4d4ma2';
+  const probabilities: [number, number][] = [
+    [4, 0.00390625],
+    [5, 0.046875],
+    [6, 0.2109375],
+    [7, 0.421875],
+    [8, 0.31640625],
+  ];
+  const mean = 7.0;
+  const stddev = 0.8660254037844386;
 
-  d20.distribution('50d50'); // No operators, less than 101*101
-  d20.distribution('4d6mi3'); // Operators, less than 8192 possibilities
-
-  expect(() => d20.distribution('400d400')).toThrowError(d20.DistributionError); // No operators, too many dice
-  expect(() => d20.distribution('6d6mi3')).toThrowError(d20.DistributionError); // Operators, too many possibilities
+  verifyDistribution(expression, probabilities, mean, stddev);
 });
