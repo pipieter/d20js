@@ -1,10 +1,3 @@
-export class LexerError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'LexerError';
-  }
-}
-
 export class ParserError extends Error {
   constructor(message: string) {
     super(message);
@@ -23,5 +16,12 @@ export class TooManyRollsError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'TooManyRollsError';
+  }
+}
+
+export class DistributionError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'DistributionError';
   }
 }
