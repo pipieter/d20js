@@ -13,7 +13,7 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest",
-    "prepare": "tsc",
+    "prepare": "peggy -c scripts/peggy.build.mjs &&tsc",
     "grammar": "peggy -c scripts/peggy.config.mjs"
   },
   "devDependencies": {
