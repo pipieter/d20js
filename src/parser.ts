@@ -4,7 +4,12 @@ import { parse } from './grammar';
 
 export class Parser {
   public parse(expression: string): ASTNode {
-    return this.parseNode(parse(expression));
+    try {
+      const parsed = parse(expression);
+      return this.parseNode(parsed);
+    } catch {
+      throw new ParserError(`Could not parse expression '${expression}'!`)
+    }
   }
 
   private parseNode(node: any): ASTNode {

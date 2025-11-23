@@ -122,6 +122,11 @@ export class Distribution {
   }
 
   public static div(a: Distribution, b: Distribution) {
+    for (const key of b.keys()) {
+      if (key === 0) {
+        throw new DistributionError('Distribution contains potential divide by zero!');
+      }
+    }
     return Distribution.combine(a, b, (a, b) => Math.floor(a / b));
   }
 
