@@ -60,7 +60,7 @@ export class Distribution {
     throw new DistributionError(`Distribution: unsupported node type '${node.constructor.name}'`);
   }
 
-  public keys(): readonly number[] {
+  public keys(): number[] {
     return Array.from(this.values.keys());
   }
 
