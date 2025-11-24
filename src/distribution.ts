@@ -61,7 +61,9 @@ export class Distribution {
   }
 
   public keys(): number[] {
-    return Array.from(this.values.keys());
+    const keys = Array.from(this.values.keys());
+    keys.sort((a, b) => a - b);
+    return keys;
   }
 
   public get(key: number): number {
