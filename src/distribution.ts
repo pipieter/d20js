@@ -111,6 +111,17 @@ export class Distribution {
     return new Distribution(values);
   }
 
+  public static transform(dist: Distribution, func: (key: number) => number): Distribution {
+    const values = new Map<number, number>();
+    for (const [key, value] of dist.values.entries()) {
+      const newKey = func(key);
+      const newValue = (values.get(newKey) ?? 0) + value;
+      values.set(newKey, newValue);
+    }
+
+    return new Distribution(values);
+  }
+
   public static add(a: Distribution, b: Distribution) {
     return Distribution.combine(a, b, (a, b) => a + b);
   }
@@ -136,9 +147,12 @@ export class Distribution {
     return Distribution.combine(a, b, (a, b) => a % b);
   }
 
-  public static neg(a: Distribution) {
-    const values: [number, number][] = Array.from(a.values.entries()).map((value) => [-value[0], value[1]]);
-    return new Distribution(new Map(values));
+  public static neg(dist: Distribution) {
+    return Distribution.transform(dist, (key) => -key);
+  }
+
+  public static floor(dist: Distribution) {
+    return Distribution.transform(dist, (key) => Math.floor(key));
   }
 
   public static advantage(a: Distribution) {
