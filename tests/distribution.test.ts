@@ -42,6 +42,17 @@ test('test invalid selectors', () => {
   expect(() => d20.distribution('4d20mal3')).toThrow(d20.DistributionError);
 });
 
+test('test distribution transform', () => {
+  const expression = '1d20';
+  const distribution = d20.distribution(expression);
+  const transformed = d20.Distribution.transform(distribution, (key) => (key % 4) + 1);
+
+  expect(transformed.get(1)).toEqual(0.25);
+  expect(transformed.get(2)).toEqual(0.25);
+  expect(transformed.get(3)).toEqual(0.25);
+  expect(transformed.get(4)).toEqual(0.25);
+});
+
 // ==========================================
 // Test the results of individual expressions
 // ==========================================
