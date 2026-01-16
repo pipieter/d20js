@@ -113,9 +113,9 @@ export class Distribution {
     return new Distribution(values);
   }
 
-  public static transformKeys(dist: Distribution, func: (key: number) => number): Distribution {
+  public transformKeys(func: (key: number) => number): Distribution {
     const values = new Map<number, number>();
-    for (const [key, value] of dist.values.entries()) {
+    for (const [key, value] of this.values.entries()) {
       const newKey = func(key);
       const newValue = (values.get(newKey) ?? 0) + value;
       values.set(newKey, newValue);
@@ -124,9 +124,9 @@ export class Distribution {
     return new Distribution(values);
   }
 
-  public static transformValues(dist: Distribution, func: (value: number) => number): Distribution {
+  public transformValues(func: (value: number) => number): Distribution {
     const values = new Map<number, number>();
-    for (const [key, value] of dist.values.entries()) {
+    for (const [key, value] of this.values.entries()) {
       values.set(key, func(value));
     }
     return new Distribution(values);
@@ -158,11 +158,11 @@ export class Distribution {
   }
 
   public static neg(dist: Distribution) {
-    return Distribution.transformKeys(dist, (key) => -key);
+    return dist.transformKeys((key) => -key);
   }
 
   public static floor(dist: Distribution) {
-    return Distribution.transformKeys(dist, (key) => Math.floor(key));
+    return dist.transformKeys((key) => Math.floor(key));
   }
 
   public static advantage(a: Distribution) {
