@@ -12,7 +12,9 @@ function id<T>(v: T): T {
 export class Distribution {
   private readonly values: Map<number, number>;
 
-  constructor(values: Map<number, number>) {
+  constructor(values?: Map<number, number>) {
+    if (values === undefined) values = new Map([[0.0, 1.0]]);
+
     this.values = values;
   }
 
