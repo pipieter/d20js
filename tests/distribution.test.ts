@@ -53,6 +53,17 @@ test('test distribution transform', () => {
   expect(transformed.get(4)).toEqual(0.25);
 });
 
+test('test distribution transform values', () => {
+  const expression = '1d4';
+  const distribution = d20.distribution(expression);
+  const transformed = distribution.transformValues((value) => value / 2);
+
+  expect(transformed.get(1)).toEqual(0.25 / 2);
+  expect(transformed.get(2)).toEqual(0.25 / 2);
+  expect(transformed.get(3)).toEqual(0.25 / 2);
+  expect(transformed.get(4)).toEqual(0.25 / 2);
+});
+
 // ==========================================
 // Test the results of individual expressions
 // ==========================================
