@@ -32,3 +32,19 @@ export function cartesianProduct<T>(arrays: T[][]): T[][] {
 
   return result;
 }
+
+export function convolve(a: readonly number[], b: readonly number[]): number[] {
+  // Calculate the convolution of two vectors
+  const length = a.length + b.length - 1;
+  const convolution = Array(length).fill(0);
+
+  for (let n = 0; n < convolution.length; n++) {
+    for (let m = 0; m < b.length; m++) {
+      if (0 <= n - m && n - m < a.length) {
+        convolution[n] += a[n - m] * b[m];
+      }
+    }
+  }
+
+  return convolution;
+}

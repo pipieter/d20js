@@ -1,6 +1,6 @@
 import { DistributionError } from './errors';
 import { ASTBinOp, ASTDice, ASTLiteral, ASTNode, ASTParenthetical, ASTUnOp, DiceOperation, Selector, selectorMatches } from './parser';
-import { cartesianProduct, range, sum } from './util';
+import { cartesianProduct, convolve, range, sum } from './util';
 
 const DiceLimits = 101 * 101; //Allow 100d100, but nothing more
 const OperationLimits = 8192;
@@ -18,10 +18,21 @@ export class Distribution {
     this.values = values;
   }
 
-  public static uniform(sides: number): Distribution {
+  public static uniform(count: number, sides: number): Distribution {
+    const min = count;
+    const max = count * sides;
+
+    const convolution = Array(sides).fill(1 / sides);
+    let result = [...convolution];
+
+    for (let _ = 0; _ < count - 1; _++) {
+      result = convolve(result, convolution);
+    }
+
+
     const map = new Map<number, number>();
-    for (let i = 1; i <= sides; i++) {
-      map.set(i, 1 / sides);
+    for (let i = min; i <= max; i++) {
+      map.set(i, result[i - min]);
     }
     return new Distribution(map);
   }
@@ -187,13 +198,7 @@ function calculateDiceDistribution(dice: ASTDice): Distribution {
     throw new DistributionError(`There are too many dice to calculate in '${dice.toString()}'!`);
   }
 
-  let distribution = new Distribution(new Map([[0.0, 1.0]]));
-  for (let i = 0; i < dice.count; i++) {
-    const uniform = Distribution.uniform(dice.sides);
-    distribution = Distribution.add(distribution, uniform);
-  }
-
-  return distribution;
+  return Distribution.uniform(dice.count, dice.sides);
 }
 
 class DiscreteDistribution {
