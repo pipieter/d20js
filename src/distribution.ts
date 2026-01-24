@@ -19,6 +19,10 @@ export class Distribution {
   }
 
   public static uniform(count: number, sides: number): Distribution {
+    if (count === 0 || sides === 0) {
+      return new Distribution();
+    }
+
     const min = count;
     const max = count * sides;
 
@@ -28,7 +32,6 @@ export class Distribution {
     for (let _ = 0; _ < count - 1; _++) {
       result = convolve(result, convolution);
     }
-
 
     const map = new Map<number, number>();
     for (let i = min; i <= max; i++) {

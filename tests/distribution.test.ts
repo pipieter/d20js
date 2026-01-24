@@ -35,6 +35,12 @@ test('test limits', () => {
   expect(() => d20.distribution('6d6mi3')).toThrowError(d20.DistributionError); // Operators, too many possibilities
 });
 
+test('test rolling zero dice', () => {
+  const distribution = d20.distribution('0d6');
+
+  expect(distribution.get(0)).toEqual(1.0);
+});
+
 test('test invalid selectors', () => {
   // These tests should throw errors, because the used selectors are not supported for the operations
 
